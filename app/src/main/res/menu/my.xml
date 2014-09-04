@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MyActivity" >
+    <item android:id="@+id/action_upgrade"
+        android:title="Upgrade"
+        android:showAsAction="always" />
+    <item android:id="@+id/action_reset"
+        android:title="Reset"
+        android:showAsAction="always" />
+</menu>
