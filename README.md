@@ -17,7 +17,7 @@ To generate codes, look in the /scripts/ folder for the correct generate script 
 To generate 5 codes with the sponser name "Bowser" on a Liux machine,
 
 ```sh
-r2doesinc@t3hh4xx0r:~/Dropbox/Android/AndroidStudioProjects/UberVerificationDemo/scripts$ ./generate_codes_on_linux.sh 5 saved_codes.txt Bowser
+./generate_codes_on_linux.sh 5 saved_codes.txt Bowser
 
 ```
 
