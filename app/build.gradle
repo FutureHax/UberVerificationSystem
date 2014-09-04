@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 20
-    buildToolsVersion "20.0.0"
+    buildToolsVersion '20.0.0'
 
     defaultConfig {
         applicationId "com.t3hh4xx0r.uberverification"
@@ -21,6 +21,7 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':library')
+    compile project(':uber-validation-library')
+//    compile 'com.t3hh4xx0r:uber-validation-library:0.0.1-SNAPSHOT@aar'
 
 }
