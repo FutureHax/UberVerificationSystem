@@ -17,3 +17,18 @@ r2doesinc@t3hh4xx0r:~/Dropbox/Android/AndroidStudioProjects/UberVerificationDemo
 This will generate 5 codes, save those values to saved_codes.txt, and insert Bowser as the code sponser. The sponsor is a way to track giveaway campaigns, etc. The app can use this sponsor value to setup branding or things of that sort. 
 
 Please check out the exampple app for more information.
+
+
+This library is available on Maven. Please add the following to your root build.gradle
+
+repositories {
+        mavenCentral()
+        maven {
+            url "https://oss.sonatype.org/content/repositories/snapshots"
+        }
+    }
+    
+    
+And add the following to your app build.gradle
+
+compile 'com.t3hh4xx0r:uber-validation-library:0.0.1-SNAPSHOT@aar'
