@@ -41,19 +41,24 @@ public class ParseInstallObject {
      * @param c
      * @param listener
      */
-	public static void createInstall(Context c, IParseInstallFinished listener) {
-		ParseInstallObject o = new ParseInstallObject(c);
+         public static void createInstall(Context c, IParseInstallFinished listener) {
+        ParseInstallObject o = new ParseInstallObject(c);
 
-		Pattern emailPattern = Patterns.EMAIL_ADDRESS;
-		Account[] accounts = AccountManager.get(c).getAccounts();
-		if (accounts[0] != null) {
-			if (emailPattern.matcher(accounts[0].name).matches()) {
-				o.installObject.setPrimaryEmail(accounts[0].name);
-			}
-		}
-		o.setParseInstallListener(listener);
-		o.getInstallByEmail();
-	}
+        Pattern emailPattern = Patterns.EMAIL_ADDRESS;
+        Account[] accounts = AccountManager.get(c).getAccounts();
+         if (accounts != null && accounts.length > 0) {
+            for (Account acct : accounts) {
+                if (acct.type.equals("com.google")) {
+                    if (emailPattern.matcher(acct.name).matches()) {
+                        o.installObject.setPrimaryEmail(acct.name);
+                    }
+                }
+            }
+        }
+        o.setParseInstallListener(listener);
+        o.getInstallByEmails();
+    }
+
 
 	private void setParseInstallListener(
 			IParseInstallFinished parseInstallListener) {
