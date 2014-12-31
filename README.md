@@ -41,7 +41,7 @@ This library is available on Maven. To include it in your project, add the follo
     
 And add the following to your app build.gradle
 
-```compile 'com.t3hh4xx0r:uber-validation-library:0.0.1-SNAPSHOT@aar'```
+```compile 'com.t3hh4xx0r:uber-validation-library:0.0.2-SNAPSHOT@aar'```
 
 
 **Please check out the provided example for more details**
