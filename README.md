@@ -21,7 +21,6 @@ To generate 5 codes with the sponser name "Bowser" on a Liux machine,
 
 ```
 
-```
 
 This will generate 5 codes, save those values to saved_codes.txt, and insert Bowser as the code sponser. The sponsor is a way to track giveaway campaigns, etc. The app can use this sponsor value to setup branding or things of that sort. 
 
