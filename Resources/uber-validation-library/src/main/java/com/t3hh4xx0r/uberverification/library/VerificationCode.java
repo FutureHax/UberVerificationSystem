@@ -75,9 +75,13 @@ public class VerificationCode {
     public static String getPrimaryEmail(Context c) {
         Pattern emailPattern = Patterns.EMAIL_ADDRESS;
         Account[] accounts = AccountManager.get(c).getAccounts();
-        if (accounts[0] != null) {
-            if (emailPattern.matcher(accounts[0].name).matches()) {
-                return accounts[0].name;
+        if (accounts != null && accounts.length > 0) {
+            for (Account acct : accounts) {
+                if (acct.type.equals("com.google")) {
+                    if (emailPattern.matcher(acct.name).matches()) {
+                        return acct.name;
+                    }
+                }
             }
         }
         return "";

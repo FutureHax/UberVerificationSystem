@@ -1,10 +1,7 @@
 package com.t3hh4xx0r.uberverification.library;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.content.Context;
 import android.util.Log;
-import android.util.Patterns;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -16,159 +13,149 @@ import org.joda.time.DateTimeConstants;
 
 import java.text.DecimalFormat;
 import java.util.List;
-import java.util.regex.Pattern;
 
 public class ParseInstallObject {
-	private IParseInstallFinished parseInstallListener;
-	private Context c;
-	InstallObject installObject;
+    private IParseInstallFinished parseInstallListener;
+    private Context c;
+    InstallObject installObject;
 
-	private static final String PRIMARY_EMAIL = "primaryEmail";
+    private static final String PRIMARY_EMAIL = "primaryEmail";
 
-	public ParseInstallObject(Context c) {
-		this.c = c;
-		installObject = new InstallObject();
-	}
+    public ParseInstallObject(Context c) {
+        this.c = c;
+        installObject = new InstallObject();
+    }
 
-	public ParseInstallObject() {
-		// TODO Auto-generated constructor stub
-	}
+    public ParseInstallObject() {
+        // TODO Auto-generated constructor stub
+    }
 
     /**
-     *
      * Call from your main {@link android.app.Activity#onCreate(android.os.Bundle)}
      *
      * @param c
      * @param listener
      */
-         public static void createInstall(Context c, IParseInstallFinished listener) {
+    public static void createInstall(Context c, IParseInstallFinished listener) {
         ParseInstallObject o = new ParseInstallObject(c);
-
-        Pattern emailPattern = Patterns.EMAIL_ADDRESS;
-        Account[] accounts = AccountManager.get(c).getAccounts();
-         if (accounts != null && accounts.length > 0) {
-            for (Account acct : accounts) {
-                if (acct.type.equals("com.google")) {
-                    if (emailPattern.matcher(acct.name).matches()) {
-                        o.installObject.setPrimaryEmail(acct.name);
-                    }
-                }
-            }
+        String primaryEmail = VerificationCode.getPrimaryEmail(c);
+        if (!primaryEmail.isEmpty()) {
+            o.installObject.setPrimaryEmail(primaryEmail);
         }
+
         o.setParseInstallListener(listener);
-        o.getInstallByEmails();
+        o.getInstallByEmail();
     }
 
+    private void setParseInstallListener(
+            IParseInstallFinished parseInstallListener) {
+        this.parseInstallListener = parseInstallListener;
+    }
 
-	private void setParseInstallListener(
-			IParseInstallFinished parseInstallListener) {
-		this.parseInstallListener = parseInstallListener;
-	}
+    private void getInstallByEmail() {
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Install");
+        query.whereEqualTo(PRIMARY_EMAIL, installObject.primaryEmail);
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> results, ParseException e) {
+                if (e == null) {
+                    if (results.isEmpty()) {
+                        createNewInstall();
+                    } else {
+                        updateInstallFromRemote(results.get(0));
+                    }
+                } else {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
 
-	private void getInstallByEmail() {
-		ParseQuery<ParseObject> query = ParseQuery.getQuery("Install");
-		query.whereEqualTo(PRIMARY_EMAIL, installObject.primaryEmail);
-		query.findInBackground(new FindCallback<ParseObject>() {
-			@Override
-			public void done(List<ParseObject> results, ParseException e) {
-				if (e == null) {
-					if (results.isEmpty()) {
-						createNewInstall();
-					} else {
-						updateInstallFromRemote(results.get(0));
-					}
-				} else {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-
-	private void createNewInstall() {
-		ParseObject install = toParseObject();
-		install.saveInBackground(new SaveCallback() {
-			@Override
-			public void done(ParseException arg0) {
+    private void createNewInstall() {
+        ParseObject install = toParseObject();
+        install.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException arg0) {
                 Verifier.setParseInstallObject(ParseInstallObject.this, c);
                 parseInstallListener.finished(ParseInstallObject.this);
-			}
-		});
-	}
+            }
+        });
+    }
 
-	private ParseObject toParseObject() {
-		ParseObject install = new ParseObject("Install");
-		install.put(PRIMARY_EMAIL, installObject.primaryEmail);
-		return install;
-	}
+    private ParseObject toParseObject() {
+        ParseObject install = new ParseObject("Install");
+        install.put(PRIMARY_EMAIL, installObject.primaryEmail);
+        return install;
+    }
 
-	protected void updateInstallFromRemote(ParseObject install) {
-		installObject.setFirstInstall(install.getCreatedAt().getTime());
-		installObject.primaryEmail = install.getString(PRIMARY_EMAIL);
-		long now = System.currentTimeMillis();
-		if ((now - installObject.getFirstInstall()) > Verifier.getDemoPeriodLength(c)) {
-			handleNukedInstall();
-		} else {
+    protected void updateInstallFromRemote(ParseObject install) {
+        installObject.setFirstInstall(install.getCreatedAt().getTime());
+        installObject.primaryEmail = install.getString(PRIMARY_EMAIL);
+        long now = System.currentTimeMillis();
+        if ((now - installObject.getFirstInstall()) > Verifier.getDemoPeriodLength(c)) {
+            handleNukedInstall();
+        } else {
             Verifier.setAppNuked(c, false, "");
         }
 
         Verifier.setParseInstallObject(ParseInstallObject.this, c);
         parseInstallListener.finished(this);
 
-		Log.d("TIME SINCE INSTALL",
+        Log.d("TIME SINCE INSTALL",
                 Long.toString(now - installObject.firstInstall));
-	}
+    }
 
-	private void handleNukedInstall() {
-		long now = System.currentTimeMillis();
-		DecimalFormat f = new DecimalFormat("#");
-		String mod = " mins ago.";
-		long nukedFor = (now - installObject.firstInstall)
-				/ (DateTimeConstants.MILLIS_PER_MINUTE);
-		if (nukedFor > 60) {
-			mod = " hours ago.";
-			nukedFor = nukedFor / 60;
-			if (nukedFor > 24) {
-				mod = " days ago.";
-				nukedFor = nukedFor / 24;
-			}
-		}
-		Verifier.setAppNuked(c, true,
-				"Your demo expired " + f.format(nukedFor) + mod);
-	}
+    private void handleNukedInstall() {
+        long now = System.currentTimeMillis();
+        DecimalFormat f = new DecimalFormat("#");
+        String mod = " mins ago.";
+        long nukedFor = (now - installObject.firstInstall)
+                / (DateTimeConstants.MILLIS_PER_MINUTE);
+        if (nukedFor > 60) {
+            mod = " hours ago.";
+            nukedFor = nukedFor / 60;
+            if (nukedFor > 24) {
+                mod = " days ago.";
+                nukedFor = nukedFor / 24;
+            }
+        }
+        Verifier.setAppNuked(c, true,
+                "Your demo expired " + f.format(nukedFor) + mod);
+    }
 
-	public interface IParseInstallFinished {
-		void finished(ParseInstallObject object);
-	}
+    public interface IParseInstallFinished {
+        void finished(ParseInstallObject object);
+    }
 
-	public InstallObject getInstallObject() {
-		return installObject;
-	}
+    public InstallObject getInstallObject() {
+        return installObject;
+    }
 
-	public class InstallObject {
-		private String primaryEmail;
-		private long firstInstall = -1;
+    public class InstallObject {
+        private String primaryEmail;
+        private long firstInstall = -1;
 
-		public String getPrimaryEmail() {
-			return primaryEmail;
-		}
+        public String getPrimaryEmail() {
+            return primaryEmail;
+        }
 
-		@Override
-		public String toString() {
-			return "InstallObject [getPrimaryEmail()=" + getPrimaryEmail()
-					+ ", getFirstInstall()=" + getFirstInstall() + "]";
-		}
+        @Override
+        public String toString() {
+            return "InstallObject [getPrimaryEmail()=" + getPrimaryEmail()
+                    + ", getFirstInstall()=" + getFirstInstall() + "]";
+        }
 
-		public void setPrimaryEmail(String primaryEmail) {
-			this.primaryEmail = primaryEmail;
-		}
+        public void setPrimaryEmail(String primaryEmail) {
+            this.primaryEmail = primaryEmail;
+        }
 
-		public long getFirstInstall() {
-			return firstInstall;
-		}
+        public long getFirstInstall() {
+            return firstInstall;
+        }
 
-		public void setFirstInstall(long firstInstall) {
-			this.firstInstall = firstInstall;
-		}
-	}
+        public void setFirstInstall(long firstInstall) {
+            this.firstInstall = firstInstall;
+        }
+    }
 
 }
