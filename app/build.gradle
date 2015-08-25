@@ -21,7 +21,7 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-//    compile project(':uber-validation-library')
-    compile 'com.t3hh4xx0r:uber-validation-library:0.0.2-SNAPSHOT@aar'
+    compile project(':uber-validation-library')
+//    compile 'com.t3hh4xx0r:uber-validation-library:0.0.2-SNAPSHOT@aar'
 
 }

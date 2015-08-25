@@ -1,4 +1,3 @@
-include ':app', ':uber-validation-library'
+include ':app'
 
-project(':uber-validation-library').projectDir = new File('Resources/uber-validation-library')
 

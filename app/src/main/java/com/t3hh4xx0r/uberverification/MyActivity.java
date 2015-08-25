@@ -34,7 +34,7 @@ public class MyActivity extends Activity {
     public void setMessage() {
         StringBuilder sb = new StringBuilder();
         sb.append("Hello ");
-        String pEmail = Verifier.getInstallObject(this).getPrimaryEmail();
+        String pEmail = VerificationCode.getRawPrimaryEmail(this);
         if (pEmail != null) {
             sb.append(pEmail);
             sb.append(".\n");

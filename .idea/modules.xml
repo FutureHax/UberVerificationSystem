@@ -2,11 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/UberVerification.iml" filepath="$PROJECT_DIR$/UberVerification.iml" />
       <module fileurl="file://$PROJECT_DIR$/UberVerificationDemo.iml" filepath="$PROJECT_DIR$/UberVerificationDemo.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Resources/uber-validation-library/uber-validation-library.iml" filepath="$PROJECT_DIR$/Resources/uber-validation-library/uber-validation-library.iml" />
     </modules>
   </component>
 </project>
-
