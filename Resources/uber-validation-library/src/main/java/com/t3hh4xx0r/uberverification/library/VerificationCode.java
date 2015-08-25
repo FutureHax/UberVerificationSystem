@@ -10,6 +10,9 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -19,6 +22,30 @@ public class VerificationCode {
 
     public interface CodeValidationListener {
         void onValidation(boolean success, boolean isValid, VerificationCode code);
+    }
+
+
+    //http://stackoverflow.com/a/5494474/1117029    
+    public static String md5(String input, Context ctx) {
+        byte[] hash;
+
+        try {
+            hash = MessageDigest.getInstance("MD5").digest(input.getBytes("UTF-8"));
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Huh, MD5 should be supported?", e);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("Huh, UTF-8 should be supported?", e);
+        }
+
+        StringBuilder hex = new StringBuilder(hash.length * 2);
+
+        for (byte b : hash) {
+            int i = (b & 0xFF);
+            if (i < 0x10) hex.append('0');
+            hex.append(Integer.toHexString(i));
+        }
+
+        return hex.toString();
     }
 
     /**
@@ -45,7 +72,7 @@ public class VerificationCode {
                     if (res.isEmpty()) {
                         isValid = false;
                     } else {
-                        String email = getPrimaryEmail(c);
+                        String email = getEncryptedPrimaryEmail(c);
                         if (!res.get(0).has("attachedUser")) {
                             res.get(0).put("attachedUser", email);
                             res.get(0).saveInBackground();
@@ -72,7 +99,7 @@ public class VerificationCode {
         });
     }
 
-    public static String getPrimaryEmail(Context c) {
+    public static String getRawPrimaryEmail(Context c) {
         Pattern emailPattern = Patterns.EMAIL_ADDRESS;
         Account[] accounts = AccountManager.get(c).getAccounts();
         if (accounts != null && accounts.length > 0) {
@@ -80,6 +107,21 @@ public class VerificationCode {
                 if (acct.type.equals("com.google")) {
                     if (emailPattern.matcher(acct.name).matches()) {
                         return acct.name;
+                    }
+                }
+            }
+        }
+        return "";
+    }
+
+    public static String getEncryptedPrimaryEmail(Context c) {
+        Pattern emailPattern = Patterns.EMAIL_ADDRESS;
+        Account[] accounts = AccountManager.get(c).getAccounts();
+        if (accounts != null && accounts.length > 0) {
+            for (Account acct : accounts) {
+                if (acct.type.equals("com.google")) {
+                    if (emailPattern.matcher(acct.name).matches()) {
+                        return md5(acct.name, c);
                     }
                 }
             }

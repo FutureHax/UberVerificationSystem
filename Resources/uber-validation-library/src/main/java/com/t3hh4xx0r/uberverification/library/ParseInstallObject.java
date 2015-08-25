@@ -38,7 +38,7 @@ public class ParseInstallObject {
      */
     public static void createInstall(Context c, IParseInstallFinished listener) {
         ParseInstallObject o = new ParseInstallObject(c);
-        String primaryEmail = VerificationCode.getPrimaryEmail(c);
+        String primaryEmail = VerificationCode.getEncryptedPrimaryEmail(c);
         if (!primaryEmail.isEmpty()) {
             o.installObject.setPrimaryEmail(primaryEmail);
         }
@@ -88,6 +88,8 @@ public class ParseInstallObject {
         return install;
     }
 
+
+    
     protected void updateInstallFromRemote(ParseObject install) {
         installObject.setFirstInstall(install.getCreatedAt().getTime());
         installObject.primaryEmail = install.getString(PRIMARY_EMAIL);
@@ -141,7 +143,7 @@ public class ParseInstallObject {
 
         @Override
         public String toString() {
-            return "InstallObject [getPrimaryEmail()=" + getPrimaryEmail()
+            return "InstallObject [getEncryptedPrimaryEmail()=" + getPrimaryEmail()
                     + ", getFirstInstall()=" + getFirstInstall() + "]";
         }
 
