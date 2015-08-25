@@ -1,0 +1,3 @@
+[submodule "Resources/uber-validation-library"]
+	path = Resources/uber-validation-library
+	url = git@github.com:FutureHax/UberValidationLibrary
